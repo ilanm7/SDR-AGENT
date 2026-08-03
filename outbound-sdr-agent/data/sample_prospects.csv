@@ -1,0 +1,11 @@
+company,first_name,last_name,role,phone,email,address,city,postal_code,sector,stores,revenue,notes
+Pharmacie du Vieux Chêne,Jean,Dumas,Gérant,+33 1 00 00 00 01,j.dumas@example.com,10 rue Fictive,Paris,75019,Pharmacie,1,800000,Pharmacie indépendante de quartier (données fictives)
+Supermarché Lumina,Marie,Lefort,Directrice de magasin,+33 1 00 00 00 02,m.lefort@example.com,21 avenue Imaginaire,Paris,75001,Grande distribution,1,4500000,Supermarché centre-ville à forte affluence (données fictives)
+Boulangerie du Beffroi,Pierre,Renard,Responsable,+33 1 00 00 00 03,p.renard@example.com,45 rue Inventée,Paris,75001,Boulangerie/Restauration,1,1200000,Boulangerie en zone touristique (données fictives)
+Pharmacie des Tilleuls,Sophie,Marchal,Pharmacienne titulaire,+33 1 00 00 00 04,s.marchal@example.com,3 boulevard Exemple,Paris,75009,Pharmacie,1,1500000,Pharmacie haute fréquentation (données fictives)
+Épicerie Grand Cours,Thomas,Pellet,Chef de rayon,+33 1 00 00 00 05,t.pellet@example.com,88 cours Démo,Paris,75012,Grande distribution,1,2800000,Commerce de quartier résidentiel (données fictives)
+Pharmacie de la Grande Gare,Isabelle,Morvan,Gérante,+33 1 00 00 00 06,i.morvan@example.com,12 rue Témoin,Paris,75010,Pharmacie,1,2200000,Pharmacie en zone gare très fréquentée (données fictives)
+Cave des Trois Fûts,François,Sicard,Directeur,+33 1 00 00 00 07,f.sicard@example.com,67 boulevard Modèle,Paris,75003,Cave à vins / Spiritueux,1,650000,Cave avec produits de valeur élevée (données fictives)
+Beauté Riviera,Camille,Level,Store Manager,+33 1 00 00 00 08,c.level@example.com,70 avenue Placeholder,Paris,75008,Cosmétiques / Parfumerie,1,8000000,Boutique flagship à flux touristique massif (données fictives)
+Marché Bellecolline,Antoine,Duret,Gérant,+33 1 00 00 00 09,a.duret@example.com,142 rue Simulée,Paris,75020,Grande distribution,1,1800000,Supermarché de quartier populaire (données fictives)
+Pharmacie du Grand Large,Nathalie,Girodet,Titulaire,+33 1 00 00 00 10,n.girodet@example.com,8 rue Essai,Paris,75015,Pharmacie,1,900000,Pharmacie de centre commercial (données fictives)

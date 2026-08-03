@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Outbound SDR Agent — console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12151a;
+    --surface:#181c23;
+    --surface-2:#1f2530;
+    --line:#2a2f3a;
+    --text:#e8e6e0;
+    --muted:#8b92a0;
+    --signal:#ff6b35;
+    --ok:#4ade80;
+    --warn:#f5c451;
+    --mono:'IBM Plex Mono', ui-monospace, monospace;
+    --sans:'IBM Plex Sans', system-ui, sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1200px 500px at 15% -10%, rgba(255,107,53,0.08), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px;}
+
+  /* ---- top bar ---- */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    padding:18px 0;
+  }
+  .topbar-inner{display:flex;align-items:center;justify-content:space-between;}
+  .brand{
+    font-family:var(--mono);
+    font-size:14px;
+    letter-spacing:0.02em;
+    display:flex;align-items:center;gap:10px;
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--ok);
+    box-shadow:0 0 0 3px rgba(74,222,128,0.15);
+    flex:none;
+  }
+  .topbar nav{display:flex;gap:24px;font-size:13px;color:var(--muted);}
+  .topbar nav a{text-decoration:none;transition:color .15s;}
+  .topbar nav a:hover{color:var(--text);}
+
+  /* ---- hero ---- */
+  .hero{padding:96px 0 64px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--signal);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:8px;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{content:"";width:18px;height:1px;background:var(--signal);}
+  h1{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(34px,5vw,58px);
+    letter-spacing:-0.02em;
+    line-height:1.05;
+    max-width:16ch;
+  }
+  .hero p.lede{
+    margin-top:22px;
+    font-size:18px;
+    color:var(--muted);
+    max-width:56ch;
+  }
+
+  /* console signature */
+  .console{
+    margin-top:48px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .console-head{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 16px;
+    border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:12px;color:var(--muted);
+  }
+  .console-head .traffic{display:flex;gap:6px;margin-right:8px;}
+  .console-head .traffic span{width:8px;height:8px;border-radius:50%;background:#3a4150;}
+  .console-body{
+    padding:18px 16px 22px;
+    font-family:var(--mono);
+    font-size:13px;
+  }
+  .log-line{
+    display:flex;gap:14px;
+    padding:6px 0;
+    opacity:0;
+    transform:translateY(4px);
+    animation:rise .4s ease forwards;
+    border-bottom:1px dashed rgba(255,255,255,0.04);
+  }
+  .log-line:last-child{border-bottom:none;}
+  .log-line .t{color:var(--muted);flex:none;width:64px;}
+  .log-line .msg{color:var(--text);flex:1;}
+  .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    padding:2px 8px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    flex:none;
+    white-space:nowrap;
+  }
+  .tag.demo{color:var(--ok);border-color:rgba(74,222,128,0.35);background:rgba(74,222,128,0.08);}
+  .tag.interested{color:var(--warn);border-color:rgba(245,196,81,0.35);background:rgba(245,196,81,0.08);}
+  .tag.callback{color:var(--signal);border-color:rgba(255,107,53,0.35);background:rgba(255,107,53,0.08);}
+  .tag.no{color:var(--muted);}
+
+  @keyframes rise{to{opacity:1;transform:translateY(0);}}
+  .log-line:nth-child(1){animation-delay:.05s;}
+  .log-line:nth-child(2){animation-delay:.25s;}
+  .log-line:nth-child(3){animation-delay:.45s;}
+  .log-line:nth-child(4){animation-delay:.65s;}
+  .log-line:nth-child(5){animation-delay:.85s;}
+
+  @media (prefers-reduced-motion: reduce){
+    .log-line{animation:none;opacity:1;transform:none;}
+  }
+
+  /* ---- section shell ---- */
+  section{padding:64px 0;border-top:1px solid var(--line);}
+  .section-head{margin-bottom:40px;max-width:60ch;}
+  .section-head .eyebrow{margin-bottom:14px;}
+  h2{font-size:clamp(24px,3vw,32px);letter-spacing:-0.01em;}
+  .section-head p{color:var(--muted);margin-top:12px;font-size:15.5px;}
+
+  /* ---- skills grid ---- */
+  .skills{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .skill{
+    background:var(--surface);
+    padding:26px 24px;
+  }
+  .skill .num{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--signal);
+    margin-bottom:14px;
+    display:block;
+  }
+  .skill h3{font-size:16.5px;font-weight:600;margin-bottom:8px;}
+  .skill p{font-size:14px;color:var(--muted);}
+
+  /* ---- channels ---- */
+  .channels{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:16px;
+  }
+  .channel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:26px 24px;
+  }
+  .channel .kicker{
+    font-family:var(--mono);font-size:11px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:0.06em;
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  }
+  .channel .kicker .pill{width:6px;height:6px;border-radius:50%;background:var(--signal);}
+  .channel h3{font-size:18px;margin-bottom:10px;}
+  .channel p{color:var(--muted);font-size:14.5px;margin-bottom:14px;}
+  .channel ul{list-style:none;font-size:13.5px;color:var(--text);}
+  .channel li{
+    padding:7px 0;
+    border-top:1px solid var(--line);
+    display:flex;gap:10px;
+  }
+  .channel li:first-child{border-top:none;}
+  .channel li::before{content:"→";color:var(--signal);flex:none;font-family:var(--mono);}
+
+  /* ---- stack ---- */
+  .stack-row{display:flex;flex-wrap:wrap;gap:10px;}
+  .chip{
+    font-family:var(--mono);font-size:12.5px;
+    padding:8px 14px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    color:var(--muted);
+    background:var(--surface);
+  }
+
+  /* ---- pipeline strip ---- */
+  .pipeline{
+    display:flex;flex-wrap:wrap;
+    gap:0;
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .pstep{
+    flex:1 1 160px;
+    background:var(--surface);
+    padding:20px 18px;
+    border-right:1px solid var(--line);
+    position:relative;
+  }
+  .pstep:last-child{border-right:none;}
+  .pstep .n{font-family:var(--mono);font-size:11px;color:var(--muted);}
+  .pstep .l{font-size:14px;font-weight:600;margin-top:6px;}
+  .pstep:not(:last-child)::after{
+    content:"›";
+    position:absolute;right:-2px;top:50%;transform:translateY(-50%);
+    color:var(--signal);font-family:var(--mono);font-size:16px;
+    z-index:1;
+  }
+
+  footer{
+    padding:40px 0 60px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:13px;
+    font-family:var(--mono);
+  }
+  footer .note{
+    margin-top:10px;color:#5c6472;
+  }
+
+  @media (max-width:640px){
+    .hero{padding:64px 0 40px;}
+    section{padding:48px 0;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand"><span class="dot"></span>outbound-sdr-agent</div>
+      <nav>
+        <a href="#skills">Skills</a>
+        <a href="#channels">Canaux</a>
+        <a href="#stack">Stack</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="hero wrap">
+    <div class="eyebrow">Agent Claude · prospection B2B</div>
+    <h1>Un SDR qui ne dort jamais entre deux appels.</h1>
+    <p class="lede">
+      Recherche de prospect, script d'appel personnalisé, appel vocal sortant,
+      coaching post-appel, relance : six tâches automatisées par un agent Claude,
+      pilotable depuis Telegram ou en autonomie complète.
+    </p>
+
+    <div class="console">
+      <div class="console-head">
+        <div class="traffic"><span></span><span></span><span></span></div>
+        campaign.py — session en cours
+      </div>
+      <div class="console-body">
+        <div class="log-line"><span class="t">09:14:02</span><span class="msg">Pharmacie du Vieux Chêne, Paris 19e — enrichissement terminé</span><span class="tag no">READY</span></div>
+        <div class="log-line"><span class="t">09:14:41</span><span class="msg">Appel sortant → Jean Dumas, gérant</span><span class="tag interested">INTERESTED</span></div>
+        <div class="log-line"><span class="t">09:16:20</span><span class="msg">Boulangerie du Beffroi — script généré</span><span class="tag no">READY</span></div>
+        <div class="log-line"><span class="t">09:17:03</span><span class="msg">Appel sortant → Pierre Renard, responsable</span><span class="tag demo">DEMO_SCHEDULED</span></div>
+        <div class="log-line"><span class="t">09:18:55</span><span class="msg">Supermarché Lumina — pas de réponse, replanifié</span><span class="tag callback">CALLBACK</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="skills">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Ce que l'agent sait faire</div>
+        <h2>Six compétences, une seule tête pensante</h2>
+        <p>Chaque skill est une capacité de <code>agent/sdr_agent.py</code>, déclenchable seule ou enchaînée automatiquement en mode prospection autonome.</p>
+      </div>
+      <div class="skills">
+        <div class="skill"><span class="num">01</span><h3>Enrichissement de prospect</h3><p>Recherche web ciblée (LinkedIn, registres d'entreprises, actualités) pour trouver le bon interlocuteur et des faits vérifiables sur cette entreprise précise.</p></div>
+        <div class="skill"><span class="num">02</span><h3>Script d'appel</h3><p>Génère une accroche et un script personnalisés à partir de la fiche prospect, jamais un pitch générique.</p></div>
+        <div class="skill"><span class="num">03</span><h3>Coaching post-appel</h3><p>Transcrit et analyse un enregistrement pour repérer ce qui a fait avancer ou échouer la conversation.</p></div>
+        <div class="skill"><span class="num">04</span><h3>Message de relance</h3><p>Rédige un suivi personnalisé après un appel ou un échange, adapté au contexte de la conversation.</p></div>
+        <div class="skill"><span class="num">05</span><h3>Dashboard manager</h3><p>Agrège les résultats d'équipe pour donner une vue de la performance globale.</p></div>
+        <div class="skill"><span class="num">06</span><h3>Prospection autonome</h3><p>Enchaîne recherche, enrichissement et script sans intervention manuelle entre les étapes.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="channels">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Comment on l'utilise</div>
+        <h2>Trois canaux, un seul agent derrière</h2>
+      </div>
+      <div class="channels">
+        <div class="channel">
+          <div class="kicker"><span class="pill"></span>Bot Telegram</div>
+          <h3>Piloter depuis son téléphone</h3>
+          <p>Machine à états qui guide le SDR à travers chaque mode, en clavier ou en texte libre.</p>
+          <ul>
+            <li>Enrichir un prospect</li>
+            <li>Générer un script</li>
+            <li>Lancer une analyse de coaching</li>
+            <li>Changer de ville de prospection</li>
+          </ul>
+        </div>
+        <div class="channel">
+          <div class="kicker"><span class="pill"></span>Agent vocal sortant</div>
+          <h3>L'appel se passe vraiment</h3>
+          <p>Twilio pour la composition d'appel, Deepgram pour la transcription en direct, Cartesia pour la voix synthétique.</p>
+          <ul>
+            <li>Vérification légale des horaires d'appel</li>
+            <li>Gestion des opt-out</li>
+            <li>Journalisation de chaque issue d'appel</li>
+          </ul>
+        </div>
+        <div class="channel">
+          <div class="kicker"><span class="pill"></span>Réseaux sociaux</div>
+          <h3>Répondre pendant qu'on dort</h3>
+          <p>Réponses aux commentaires et messages entrants sur Instagram/Facebook, dans un ton de marque cohérent.</p>
+          <ul>
+            <li>Détection intérêt commercial vs réclamation</li>
+            <li>Réponse dans la langue du message entrant</li>
+            <li>Escalade en message privé si besoin</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Pipeline</div>
+        <h2>D'un CSV de prospects à un rendez-vous pris</h2>
+      </div>
+      <div class="pipeline">
+        <div class="pstep"><span class="n">01</span><div class="l">CSV de prospects</div></div>
+        <div class="pstep"><span class="n">02</span><div class="l">Enrichissement web</div></div>
+        <div class="pstep"><span class="n">03</span><div class="l">Script personnalisé</div></div>
+        <div class="pstep"><span class="n">04</span><div class="l">Appel Twilio</div></div>
+        <div class="pstep"><span class="n">05</span><div class="l">Résultat journalisé</div></div>
+        <div class="pstep"><span class="n">06</span><div class="l">Relance ou coaching</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stack">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Sous le capot</div>
+        <h2>Stack</h2>
+      </div>
+      <div class="stack-row">
+        <span class="chip">Python</span>
+        <span class="chip">Claude API (Anthropic)</span>
+        <span class="chip">Telegram Bot API</span>
+        <span class="chip">Twilio</span>
+        <span class="chip">Deepgram</span>
+        <span class="chip">Cartesia</span>
+        <span class="chip">Meta Graph API</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      outbound-sdr-agent — étude de cas personnelle
+      <div class="note">Les données de prospects affichées ci-dessus sont fictives. Aucune donnée réelle de client, d'appel ou de performance n'est utilisée dans ce projet.</div>
+    </div>
+  </footer>
+
+</body>
+</html>

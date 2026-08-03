@@ -1,0 +1,29 @@
+# Phase 2 — Agent Vocal TargetCo
+# Installer dans un venv dédié : python -m venv venv_voice && source venv_voice/bin/activate
+
+# Serveur ASGI
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+
+# Téléphonie
+twilio>=9.0.0
+
+# STT (déjà utilisé en Phase 1 — même clé API)
+deepgram-sdk>=3.0.0,<4
+
+# LLM (déjà utilisé en Phase 1 — même clé API)
+anthropic>=0.40.0
+
+# TTS
+httpx>=0.27.0          # client HTTP async pour Cartesia
+
+# Audio conversion mulaw ↔ PCM
+# Python ≤3.12 : audioop est inclus dans la stdlib (pas besoin d'installer)
+# Python  3.13+ : audioop a été retiré → utiliser audioop-lts
+audioop-lts>=0.2.1
+
+# WebSocket client (pour Deepgram)
+websockets>=12.0
+
+# Utils
+python-dotenv>=1.0.0
