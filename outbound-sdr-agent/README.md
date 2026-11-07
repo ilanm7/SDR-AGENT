@@ -94,5 +94,4 @@ python start_voice.py --campaign data/sample_prospects.csv
 
 - Le pipeline vocal (`voice_agent/`) nécessite des comptes tiers payants
   (Twilio, Deepgram, Cartesia) pour tourner de bout en bout.
-- La couverture de tests est concentrée sur la couche de traitement de
-  données ; l'orchestrateur (`sdr_agent.py`) n'en a pas encore.
+- Il n'y a pas encore de tests automatisés.

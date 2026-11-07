@@ -62,7 +62,7 @@ Python, Anthropic API (Claude), Telegram Bot API, Twilio, Deepgram
 
 ## Setup
 
-Copy `.env.example` to `.env` and fill in the required keys (Anthropic,
+Copy `outbound-sdr-agent/.env.example` to `outbound-sdr-agent/.env` and fill in the required keys (Anthropic,
 Telegram, Twilio, Deepgram, Cartesia, Meta). The original project used two
 separate virtual environments (main agent and voice pipeline); see
 `requirements.txt` and `requirements_voice.txt`.
@@ -90,5 +90,4 @@ python start_voice.py --campaign data/sample_prospects.csv
 
 - The voice pipeline (`voice_agent/`) requires paid third-party accounts
   (Twilio, Deepgram, Cartesia) to run end to end.
-- Test coverage is concentrated on the data-processing layer; the
-  orchestrator (`sdr_agent.py`) doesn't have any yet.
+- There are no automated tests yet.
